@@ -4,7 +4,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:provider/provider.dart';
 
 import 'firebase_options.dart';
-
+import 'features/payment/transaction_page.dart';
 import 'features/auth/login_page.dart';
 import 'features/auth/signup_page.dart';
 import 'features/cart/cart_page.dart';
@@ -55,6 +55,7 @@ class MyApp extends StatelessWidget {
         '/signup': (context) => const SignupPage(),
         '/home': (context) => const HomePage(),
         '/cart': (context) => const CartPage(),
+        '/transactions': (context) => const TransactionPage(),
       },
     );
   }
