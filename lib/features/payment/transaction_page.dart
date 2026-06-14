@@ -36,7 +36,29 @@ class TransactionPage extends StatelessWidget {
     return Scaffold(
       backgroundColor: const Color(0xFFF7F7F7),
 
-      
+      appBar: AppBar(
+        elevation: 0,
+        centerTitle: true,
+        backgroundColor: const Color(0xFFFF8C42),
+        title: const Text(
+          "Riwayat Transaksi",
+          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+        ),
+        iconTheme: const IconThemeData(color: Colors.white),
+      ),
+
+      body: StreamBuilder<QuerySnapshot>(
+        stream: FirebaseFirestore.instance
+            .collection('transactions')
+            .where('userId', isEqualTo: user?.uid)
+            .orderBy('createdAt', descending: true)
+            .snapshots(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
+
+       
              
      
                
