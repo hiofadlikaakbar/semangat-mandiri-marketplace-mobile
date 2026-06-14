@@ -47,13 +47,13 @@ class _LoginPageState extends State<LoginPage> {
       if (user != null) {
         await user.reload();
 
-        if (!user.emailVerified) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text("Email belum diverifikasi!")),
-          );
-          setState(() => isLoading = false);
-          return;
-        }
+        // if (!user.emailVerified) {
+        //   ScaffoldMessenger.of(context).showSnackBar(
+        //     const SnackBar(content: Text("Email belum diverifikasi!")),
+        //   );
+        //   setState(() => isLoading = false);
+        //   return;
+        // }
 
         final firebaseToken = await AuthService.getFirebaseToken();
 
