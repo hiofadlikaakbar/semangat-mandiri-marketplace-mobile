@@ -23,7 +23,21 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
+
     NotificationService.init();
+
+    // DEBUG FIREBASE
+    print("PROJECT ID: ${FirebaseFirestore.instance.app.options.projectId}");
+
+    FirebaseFirestore.instance
+        .collection('products')
+        .get()
+        .then((v) {
+          print("PRODUCT COUNT: ${v.docs.length}");
+        })
+        .catchError((e) {
+          print("ERROR GETTING PRODUCTS: $e");
+        });
   }
 
   @override
