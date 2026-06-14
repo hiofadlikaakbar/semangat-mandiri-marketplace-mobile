@@ -169,6 +169,42 @@ class TransactionPage extends StatelessWidget {
                 ),
               ),
 
-     
+              Expanded(
+                child: ListView.builder(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  itemCount: transactions.length,
+                  itemBuilder: (context, index) {
+                    final data =
+                        transactions[index].data() as Map<String, dynamic>;
+
+                    final amount = (data['amount'] ?? 0).toDouble();
+
+                    final status = data['status'] ?? 'pending';
+
+                    Timestamp? createdAt = data['createdAt'];
+
+                    String dateText = "-";
+
+                    if (createdAt != null) {
+                      final date = createdAt.toDate();
+
+                      dateText =
+                          "${date.day}/${date.month}/${date.year} "
+                          "${date.hour}:${date.minute.toString().padLeft(2, '0')}";
+                    }
+
+                    return Container(
+                      margin: const EdgeInsets.only(bottom: 14),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(20),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.05),
+                            blurRadius: 10,
+                            offset: const Offset(0, 4),
+                          ),
+                        ],
+                      ),
                
 }
