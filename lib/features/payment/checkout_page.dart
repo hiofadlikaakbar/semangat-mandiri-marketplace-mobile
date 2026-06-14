@@ -6,6 +6,24 @@ import '../providers/cart_provider.dart';
 
 class CheckoutPage extends StatelessWidget {
   const CheckoutPage({super.key});
+  Future<void> createTransaction(BuildContext context) async {
+    final cart = Provider.of<CartProvider>(context, listen: false);
+
+    final user = FirebaseAuth.instance.currentUser;
+
+    if (user == null) return;
+
+    await FirebaseFirestore.instance.collection('transactions').add({
+      'userId': user.uid,
+      'amount': cart.totalPrice,
+      'status': 'pending',
+      'createdAt': Timestamp.now(),
+    });
+
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(const SnackBar(content: Text("Transaksi berhasil dibuat")));
+  }
 
   @override
   Widget build(BuildContext context) {
