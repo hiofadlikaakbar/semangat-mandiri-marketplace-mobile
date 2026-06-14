@@ -187,6 +187,43 @@ class CheckoutPage extends StatelessWidget {
               ],
             ),
           ),
+
+          // total
+          Container(
+            padding: const EdgeInsets.all(20),
+            decoration: const BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+              boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 10)],
+            ),
+            child: Column(
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text(
+                      "Total Pembayaran",
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+
+                    Text(
+                      "Rp ${cart.totalPrice.toStringAsFixed(0)}",
+                      style: const TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFFFF8C42),
+                      ),
+                    ),
+                  ],
+                ),
+
+                const SizedBox(height: 16),
+              ],
+            ),
+          ),
         ],
       ),
     );
