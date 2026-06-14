@@ -259,14 +259,12 @@ class CheckoutPage extends StatelessWidget {
                         borderRadius: BorderRadius.circular(16),
                       ),
                     ),
-                    onPressed: () {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text("Pembayaran berhasil")),
-                      );
+                    onPressed: () async {
+                      await createTransaction(context);
 
-                      cart.clearCart();
+                      // cart.clearCart();
 
-                      Navigator.popUntil(context, (route) => route.isFirst);
+                      // Navigator.popUntil(context, (route) => route.isFirst);
                     },
                   ),
                 ),
