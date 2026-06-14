@@ -186,13 +186,12 @@ class CartPage extends StatelessWidget {
                         height: 55,
                         child: ElevatedButton(
                           onPressed: () {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text("Checkout berhasil 🎉"),
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => const CheckoutPage(),
                               ),
                             );
-
-                            cart.clearCart();
                           },
                           style: ElevatedButton.styleFrom(
                             backgroundColor: const Color(0xFFFF8C42),
