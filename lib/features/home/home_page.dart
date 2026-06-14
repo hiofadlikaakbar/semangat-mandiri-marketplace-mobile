@@ -75,7 +75,7 @@ class _HomePageState extends State<HomePage> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              "Selamat Datang 👋",
+                              "Welcome in, y'all. Get you what you need!",
                               style: TextStyle(color: Colors.white70),
                             ),
                             Text(
@@ -89,7 +89,15 @@ class _HomePageState extends State<HomePage> {
                           ],
                         ),
                       ),
-
+                      IconButton(
+                        onPressed: () {
+                          Navigator.pushNamed(context, '/transactions');
+                        },
+                        icon: const Icon(
+                          Icons.receipt_long,
+                          color: Colors.white,
+                        ),
+                      ),
                       IconButton(
                         onPressed: () {
                           Navigator.pushNamed(context, '/cart');
