@@ -58,7 +58,72 @@ class TransactionPage extends StatelessWidget {
             return const Center(child: CircularProgressIndicator());
           }
 
-       
+          if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.receipt_long_outlined,
+                    size: 100,
+                    color: Colors.grey.shade400,
+                  ),
+
+                  const SizedBox(height: 20),
+
+                  const Text(
+                    "Belum Ada Transaksi",
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                  ),
+
+                  const SizedBox(height: 8),
+
+                  Text(
+                    "Transaksi yang kamu lakukan\nakan muncul di sini",
+                    textAlign: TextAlign.center,
+                    style: TextStyle(color: Colors.grey.shade600),
+                  ),
+                ],
+              ),
+            );
+          }
+
+          final transactions = snapshot.data!.docs;
+
+          double totalAmount = 0;
+
+          for (var item in transactions) {
+            final data = item.data() as Map<String, dynamic>;
+
+            totalAmount += (data['amount'] ?? 0).toDouble();
+          }
+
+          return Column(
+            children: [
+              // SUMMARY CARD
+              Container(
+                margin: const EdgeInsets.all(16),
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(24),
+                  gradient: const LinearGradient(
+                    colors: [Color(0xFFFFB347), Color(0xFFFF8C42)],
+                  ),
+                ),
+                child: Row(
+                  children: [
+                    const CircleAvatar(
+                      radius: 28,
+                      backgroundColor: Colors.white,
+                      child: Icon(
+                        Icons.payments,
+                        color: Color(0xFFFF8C42),
+                        size: 30,
+                      ),
+                    ),
+
+                    const SizedBox(width: 16),
+
              
      
                
