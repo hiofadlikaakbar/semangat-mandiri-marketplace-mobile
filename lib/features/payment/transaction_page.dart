@@ -124,7 +124,51 @@ class TransactionPage extends StatelessWidget {
 
                     const SizedBox(width: 16),
 
-             
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            "Total Transaksi",
+                            style: TextStyle(color: Colors.white70),
+                          ),
+
+                          const SizedBox(height: 4),
+
+                          Text(
+                            "${transactions.length} Transaksi",
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 24,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        const Text(
+                          "Total Belanja",
+                          style: TextStyle(color: Colors.white70),
+                        ),
+
+                        Text(
+                          "Rp ${totalAmount.toStringAsFixed(0)}",
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+
      
                
 }
