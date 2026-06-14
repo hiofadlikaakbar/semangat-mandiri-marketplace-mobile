@@ -188,7 +188,6 @@ class CheckoutPage extends StatelessWidget {
             ),
           ),
 
-          // total
           Container(
             padding: const EdgeInsets.all(20),
             decoration: const BoxDecoration(
@@ -221,6 +220,37 @@ class CheckoutPage extends StatelessWidget {
                 ),
 
                 const SizedBox(height: 16),
+
+                SizedBox(
+                  width: double.infinity,
+                  height: 55,
+                  child: ElevatedButton.icon(
+                    icon: const Icon(Icons.payment, color: Colors.white),
+                    label: const Text(
+                      "Bayar Sekarang",
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFFFF8C42),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                    ),
+                    onPressed: () {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text("Pembayaran berhasil")),
+                      );
+
+                      cart.clearCart();
+
+                      Navigator.popUntil(context, (route) => route.isFirst);
+                    },
+                  ),
+                ),
               ],
             ),
           ),
