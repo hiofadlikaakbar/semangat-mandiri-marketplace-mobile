@@ -17,30 +17,73 @@ class _CheckoutPageState extends State<CheckoutPage> {
   bool isLoading = false;
 
   void _showPinDialog() {
-    showDialog(
+    showModalBottomSheet(
       context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
       builder: (context) {
-        return AlertDialog(
-          title: const Text("Masukkan PIN Wallet"),
-          content: TextField(
-            controller: pinController,
-            obscureText: true,
-            keyboardType: TextInputType.number,
-            decoration: const InputDecoration(hintText: "Contoh: 1702005"),
+        return Padding(
+          padding: EdgeInsets.only(
+            left: 20,
+            right: 20,
+            top: 20,
+            bottom: MediaQuery.of(context).viewInsets.bottom + 20,
           ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text("Batal"),
-            ),
-            ElevatedButton(
-              onPressed: () async {
-                Navigator.pop(context);
-                await _processPayment();
-              },
-              child: const Text("Bayar"),
-            ),
-          ],
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text(
+                "Konfirmasi Pembayaran",
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+
+              const SizedBox(height: 20),
+
+              TextField(
+                controller: pinController,
+                obscureText: true,
+                keyboardType: TextInputType.number,
+                decoration: InputDecoration(
+                  hintText: "Masukkan PIN",
+                  prefixIcon: const Icon(
+                    Icons.lock_outline,
+                    color: Color(0xFFFF8C42),
+                  ),
+                  filled: true,
+                  fillColor: const Color(0xFFF5F5F5),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(16),
+                    borderSide: BorderSide.none,
+                  ),
+                ),
+              ),
+
+              const SizedBox(height: 20),
+
+              SizedBox(
+                width: double.infinity,
+                height: 50,
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFFFF8C42),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                  ),
+                  onPressed: () async {
+                    Navigator.pop(context);
+                    await _processPayment();
+                  },
+                  child: const Text(
+                    "Konfirmasi Bayar",
+                    style: TextStyle(color: Colors.white),
+                  ),
+                ),
+              ),
+            ],
+          ),
         );
       },
     );
@@ -66,25 +109,20 @@ class _CheckoutPageState extends State<CheckoutPage> {
       }
 
       final data = walletSnap.data() as Map<String, dynamic>;
-
       final savedPin = data['pin'];
       final balance = data['balance'] ?? 0;
       final total = cart.totalPrice.toInt();
 
-      // 🔐 cek PIN
       if (pinController.text != savedPin) {
         throw "PIN salah";
       }
 
-      // 💰 cek saldo
       if (balance < total) {
         throw "Saldo tidak cukup";
       }
 
-      // ➖ update saldo wallet
       await walletRef.update({'balance': balance - total});
 
-      // 📦 create transaction
       await FirebaseFirestore.instance.collection('transactions').add({
         'userId': user.uid,
         'amount': total,
@@ -92,7 +130,6 @@ class _CheckoutPageState extends State<CheckoutPage> {
         'createdAt': Timestamp.now(),
       });
 
-      // 🧹 clear cart
       cart.clearCart();
 
       if (!mounted) return;
@@ -116,89 +153,148 @@ class _CheckoutPageState extends State<CheckoutPage> {
     final cart = Provider.of<CartProvider>(context);
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF7F7F7),
+      backgroundColor: const Color(0xFFF7F8FB),
 
       appBar: AppBar(
         backgroundColor: const Color(0xFFFF8C42),
-        title: const Text("Checkout"),
+        elevation: 0,
+        title: const Text(
+          "Checkout",
+          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+        ),
+        iconTheme: const IconThemeData(color: Colors.white),
       ),
 
       body: Column(
         children: [
-          Expanded(
-            child: ListView(
-              padding: const EdgeInsets.all(16),
+          // SUMMARY HEADER
+          Container(
+            width: double.infinity,
+            margin: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              gradient: const LinearGradient(
+                colors: [Color(0xFFFFB347), Color(0xFFFF8C42)],
+              ),
+              borderRadius: BorderRadius.circular(24),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const Text(
-                  "Ringkasan Pesanan",
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  "Total Pembayaran",
+                  style: TextStyle(color: Colors.white70),
                 ),
 
-                const SizedBox(height: 12),
+                const SizedBox(height: 8),
 
-                ...cart.items.map((item) {
-                  return Card(
-                    child: ListTile(
-                      title: Text(item.name),
-                      subtitle: Text("${item.quantity} x Rp ${item.price}"),
-                      trailing: Text(
-                        "Rp ${(item.price * item.quantity).toInt()}",
-                      ),
-                    ),
-                  );
-                }).toList(),
+                Text(
+                  "Rp ${cart.totalPrice.toInt()}",
+                  style: const TextStyle(
+                    fontSize: 32,
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+
+                const SizedBox(height: 10),
+
+                Text(
+                  "${cart.items.length} item di keranjang",
+                  style: const TextStyle(color: Colors.white70),
+                ),
               ],
             ),
           ),
 
-          Container(
-            padding: const EdgeInsets.all(16),
-            decoration: const BoxDecoration(
-              color: Colors.white,
-              boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 10)],
-            ),
-            child: Column(
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Text(
-                      "Total",
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                    Text(
-                      "Rp ${cart.totalPrice.toInt()}",
-                      style: const TextStyle(
-                        fontSize: 18,
-                        color: Color(0xFFFF8C42),
-                        fontWeight: FontWeight.bold,
+          // LIST ITEMS
+          Expanded(
+            child: ListView.builder(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              itemCount: cart.items.length,
+              itemBuilder: (context, index) {
+                final item = cart.items[index];
+
+                return Container(
+                  margin: const EdgeInsets.only(bottom: 12),
+                  padding: const EdgeInsets.all(14),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(16),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.04),
+                        blurRadius: 10,
                       ),
-                    ),
-                  ],
-                ),
-
-                const SizedBox(height: 12),
-
-                SizedBox(
-                  width: double.infinity,
-                  height: 50,
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFFFF8C42),
-                    ),
-                    onPressed: isLoading ? null : _showPinDialog,
-                    child: isLoading
-                        ? const CircularProgressIndicator(color: Colors.white)
-                        : const Text(
-                            "Bayar Sekarang",
-                            style: TextStyle(color: Colors.white),
-                          ),
+                    ],
                   ),
-                ),
-              ],
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              item.name,
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              "${item.quantity} x Rp ${item.price}",
+                              style: TextStyle(color: Colors.grey.shade600),
+                            ),
+                          ],
+                        ),
+                      ),
+
+                      Text(
+                        "Rp ${(item.price * item.quantity).toInt()}",
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFFFF8C42),
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              },
             ),
           ),
         ],
+      ),
+
+      // BOTTOM CHECKOUT BAR
+      bottomNavigationBar: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 10)],
+        ),
+        child: SafeArea(
+          child: SizedBox(
+            height: 55,
+            child: ElevatedButton(
+              onPressed: isLoading ? null : _showPinDialog,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFFFF8C42),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
+              ),
+              child: isLoading
+                  ? const CircularProgressIndicator(color: Colors.white)
+                  : const Text(
+                      "Bayar Sekarang",
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+            ),
+          ),
+        ),
       ),
     );
   }
