@@ -12,8 +12,5 @@ class NotificationService {
         debugPrint("Notif: ${message.notification!.title}");
       }
     });
-
-    String? token = await messaging.getToken();
-    debugPrint("FCM TOKEN: $token");
   }
 }
