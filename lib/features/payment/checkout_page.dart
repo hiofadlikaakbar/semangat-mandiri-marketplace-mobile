@@ -142,6 +142,48 @@ class CheckoutPage extends StatelessWidget {
                     ),
                   );
                 }).toList(),
+
+                const SizedBox(height: 20),
+
+                const Text(
+                  "Metode Pembayaran",
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
+
+                const SizedBox(height: 12),
+
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(18),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.05),
+                        blurRadius: 10,
+                      ),
+                    ],
+                  ),
+                  child: const Row(
+                    children: [
+                      Icon(
+                        Icons.account_balance_wallet,
+                        color: Color(0xFFFF8C42),
+                      ),
+
+                      SizedBox(width: 12),
+
+                      Expanded(
+                        child: Text(
+                          "E-Money",
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                      ),
+
+                      Icon(Icons.check_circle, color: Colors.green),
+                    ],
+                  ),
+                ),
               ],
             ),
           ),
