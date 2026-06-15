@@ -95,6 +95,28 @@ class TransactionPage extends StatelessWidget {
                     ),
 
                     const SizedBox(width: 12),
+
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            "Pembelian Produk",
+                            style: const TextStyle(fontWeight: FontWeight.bold),
+                          ),
+
+                          const SizedBox(height: 4),
+
+                          Text(
+                            formatDate(createdAt),
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: Colors.grey.shade600,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
                   ],
                 ),
               );
