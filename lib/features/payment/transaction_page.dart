@@ -1,14 +1,30 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:intl/intl.dart';
 
 class TransactionPage extends StatelessWidget {
   const TransactionPage({super.key});
 
-  String formatDate(Timestamp timestamp) {
-    final date = timestamp.toDate();
-    return DateFormat('dd MMM yyyy, HH:mm').format(date);
+  Color _statusColor(String status) {
+    switch (status.toLowerCase()) {
+      case "success":
+        return const Color(0xFF4CAF50);
+      case "failed":
+        return Colors.red;
+      default:
+        return const Color(0xFFFF8C42);
+    }
+  }
+
+  IconData _statusIcon(String status) {
+    switch (status.toLowerCase()) {
+      case "success":
+        return Icons.check_circle;
+      case "failed":
+        return Icons.cancel;
+      default:
+        return Icons.access_time;
+    }
   }
 
   @override
@@ -16,15 +32,20 @@ class TransactionPage extends StatelessWidget {
     final user = FirebaseAuth.instance.currentUser;
 
     if (user == null) {
-      return const Scaffold(body: Center(child: Text("User tidak ditemukan")));
+      return const Scaffold(body: Center(child: Text("User belum login")));
     }
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF7F7F7),
+      backgroundColor: const Color(0xFFF7F8FB),
 
       appBar: AppBar(
+        elevation: 0,
         backgroundColor: const Color(0xFFFF8C42),
-        title: const Text("Riwayat Transaksi"),
+        title: const Text(
+          "Riwayat Transaksi",
+          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+        ),
+        iconTheme: const IconThemeData(color: Colors.white),
       ),
 
       body: StreamBuilder<QuerySnapshot>(
@@ -35,11 +56,17 @@ class TransactionPage extends StatelessWidget {
             .snapshots(),
 
         builder: (context, snapshot) {
+          if (snapshot.hasError) {
+            return Center(child: Text("Error: ${snapshot.error}"));
+          }
+
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
           }
 
-          if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+          final docs = snapshot.data?.docs ?? [];
+
+          if (docs.isEmpty) {
             return const Center(
               child: Text(
                 "Belum ada transaksi",
@@ -48,24 +75,31 @@ class TransactionPage extends StatelessWidget {
             );
           }
 
-          final docs = snapshot.data!.docs;
-
           return ListView.builder(
             padding: const EdgeInsets.all(16),
             itemCount: docs.length,
             itemBuilder: (context, index) {
-              final data = docs[index];
+              final data = docs[index].data() as Map<String, dynamic>;
 
-              final amount = data['amount'];
-              final status = data['status'];
-              final createdAt = data['createdAt'] as Timestamp;
+              final amount = data['amount'] ?? 0;
+              final status = data['status'] ?? 'pending';
+              final createdAt = data['createdAt'] as Timestamp?;
+
+              String dateText = "-";
+              if (createdAt != null) {
+                final date = createdAt.toDate();
+                dateText =
+                    "${date.day}/${date.month}/${date.year} "
+                    "${date.hour}:${date.minute.toString().padLeft(2, '0')}";
+              }
+
+              final color = _statusColor(status);
 
               return Container(
                 margin: const EdgeInsets.only(bottom: 12),
-                padding: const EdgeInsets.all(14),
                 decoration: BoxDecoration(
                   color: Colors.white,
-                  borderRadius: BorderRadius.circular(16),
+                  borderRadius: BorderRadius.circular(18),
                   boxShadow: [
                     BoxShadow(
                       color: Colors.black.withOpacity(0.05),
@@ -74,65 +108,65 @@ class TransactionPage extends StatelessWidget {
                     ),
                   ],
                 ),
-                child: Row(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(10),
-                      decoration: BoxDecoration(
-                        color: status == 'success'
-                            ? Colors.green.withOpacity(0.1)
-                            : Colors.orange.withOpacity(0.1),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Icon(
-                        status == 'success'
-                            ? Icons.check_circle
-                            : Icons.hourglass_bottom,
-                        color: status == 'success'
-                            ? Colors.green
-                            : Colors.orange,
-                      ),
+                child: ListTile(
+                  contentPadding: const EdgeInsets.all(16),
+
+                  leading: CircleAvatar(
+                    backgroundColor: color.withOpacity(0.15),
+                    child: Icon(_statusIcon(status), color: color),
+                  ),
+
+                  title: Text(
+                    "Rp $amount",
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 18,
                     ),
+                  ),
 
-                    const SizedBox(width: 12),
+                  subtitle: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const SizedBox(height: 4),
 
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            "Pembelian Produk",
-                            style: const TextStyle(fontWeight: FontWeight.bold),
-                          ),
-
-                          const SizedBox(height: 4),
-
-                          Text(
-                            formatDate(createdAt),
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: Colors.grey.shade600,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [
-                        Text(
-                          "Rp ${amount.toString()}",
-                          style: const TextStyle(
-                            fontWeight: FontWeight.bold,
-                            color: Color(0xFFFF8C42),
-                          ),
+                      Text(
+                        "Status: ${status.toUpperCase()}",
+                        style: TextStyle(
+                          color: color,
+                          fontWeight: FontWeight.w600,
                         ),
+                      ),
 
-                        const SizedBox(height: 4),
-                      ],
+                      const SizedBox(height: 4),
+
+                      Text(
+                        dateText,
+                        style: TextStyle(
+                          color: Colors.grey.shade600,
+                          fontSize: 12,
+                        ),
+                      ),
+                    ],
+                  ),
+
+                  trailing: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 6,
                     ),
-                  ],
+                    decoration: BoxDecoration(
+                      color: color.withOpacity(0.15),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Text(
+                      status.toUpperCase(),
+                      style: TextStyle(
+                        color: color,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 12,
+                      ),
+                    ),
+                  ),
                 ),
               );
             },

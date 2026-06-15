@@ -95,6 +95,8 @@ class _CheckoutPageState extends State<CheckoutPage> {
 
     if (user == null) return;
 
+    print("CHECKOUT UID = ${user.uid}");
+
     setState(() => isLoading = true);
 
     try {
