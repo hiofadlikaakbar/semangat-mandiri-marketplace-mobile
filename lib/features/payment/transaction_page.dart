@@ -5,23 +5,27 @@ import 'package:firebase_auth/firebase_auth.dart';
 class TransactionPage extends StatelessWidget {
   const TransactionPage({super.key});
 
-  Color _statusColor(String status) {
+  Color getStatusColor(String status) {
     switch (status.toLowerCase()) {
       case "success":
-        return const Color(0xFF4CAF50);
+        return Colors.green;
+
       case "failed":
         return Colors.red;
+
       default:
         return const Color(0xFFFF8C42);
     }
   }
 
-  IconData _statusIcon(String status) {
+  IconData getStatusIcon(String status) {
     switch (status.toLowerCase()) {
       case "success":
         return Icons.check_circle;
+
       case "failed":
         return Icons.cancel;
+
       default:
         return Icons.access_time;
     }
@@ -41,6 +45,7 @@ class TransactionPage extends StatelessWidget {
       appBar: AppBar(
         elevation: 0,
         backgroundColor: const Color(0xFFFF8C42),
+        centerTitle: true,
         title: const Text(
           "Riwayat Transaksi",
           style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
@@ -52,7 +57,6 @@ class TransactionPage extends StatelessWidget {
         stream: FirebaseFirestore.instance
             .collection('transactions')
             .where('userId', isEqualTo: user.uid)
-            .orderBy('createdAt', descending: true)
             .snapshots(),
 
         builder: (context, snapshot) {
@@ -61,16 +65,39 @@ class TransactionPage extends StatelessWidget {
           }
 
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
+            return const Center(
+              child: CircularProgressIndicator(color: Color(0xFFFF8C42)),
+            );
           }
 
-          final docs = snapshot.data?.docs ?? [];
+          if (!snapshot.hasData) {
+            return const Center(child: Text("Tidak ada data"));
+          }
+
+          final docs = snapshot.data!.docs;
 
           if (docs.isEmpty) {
-            return const Center(
-              child: Text(
-                "Belum ada transaksi",
-                style: TextStyle(fontSize: 16),
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.receipt_long_outlined,
+                    size: 80,
+                    color: Colors.grey.shade400,
+                  ),
+
+                  const SizedBox(height: 16),
+
+                  Text(
+                    "Belum ada transaksi",
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.grey.shade700,
+                    ),
+                  ),
+                ],
               ),
             );
           }
@@ -79,89 +106,69 @@ class TransactionPage extends StatelessWidget {
             padding: const EdgeInsets.all(16),
             itemCount: docs.length,
             itemBuilder: (context, index) {
-              final data = docs[index].data() as Map<String, dynamic>;
+              final data = docs[index];
 
               final amount = data['amount'] ?? 0;
               final status = data['status'] ?? 'pending';
-              final createdAt = data['createdAt'] as Timestamp?;
 
-              String dateText = "-";
-              if (createdAt != null) {
-                final date = createdAt.toDate();
-                dateText =
-                    "${date.day}/${date.month}/${date.year} "
-                    "${date.hour}:${date.minute.toString().padLeft(2, '0')}";
-              }
-
-              final color = _statusColor(status);
+              final statusColor = getStatusColor(status.toString());
 
               return Container(
-                margin: const EdgeInsets.only(bottom: 12),
+                margin: const EdgeInsets.only(bottom: 14),
+
                 decoration: BoxDecoration(
                   color: Colors.white,
-                  borderRadius: BorderRadius.circular(18),
+                  borderRadius: BorderRadius.circular(22),
                   boxShadow: [
                     BoxShadow(
                       color: Colors.black.withOpacity(0.05),
-                      blurRadius: 10,
-                      offset: const Offset(0, 4),
+                      blurRadius: 12,
+                      offset: const Offset(0, 5),
                     ),
                   ],
                 ),
+
                 child: ListTile(
                   contentPadding: const EdgeInsets.all(16),
 
                   leading: CircleAvatar(
-                    backgroundColor: color.withOpacity(0.15),
-                    child: Icon(_statusIcon(status), color: color),
+                    radius: 26,
+                    backgroundColor: statusColor.withOpacity(0.15),
+                    child: Icon(
+                      getStatusIcon(status.toString()),
+                      color: statusColor,
+                    ),
                   ),
 
                   title: Text(
                     "Rp $amount",
                     style: const TextStyle(
-                      fontWeight: FontWeight.bold,
                       fontSize: 18,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
 
-                  subtitle: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const SizedBox(height: 4),
-
-                      Text(
-                        "Status: ${status.toUpperCase()}",
-                        style: TextStyle(
-                          color: color,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-
-                      const SizedBox(height: 4),
-
-                      Text(
-                        dateText,
-                        style: TextStyle(
-                          color: Colors.grey.shade600,
-                          fontSize: 12,
-                        ),
-                      ),
-                    ],
+                  subtitle: Padding(
+                    padding: const EdgeInsets.only(top: 6),
+                    child: Text(
+                      "Transaksi Marketplace",
+                      style: TextStyle(color: Colors.grey.shade600),
+                    ),
                   ),
 
                   trailing: Container(
                     padding: const EdgeInsets.symmetric(
-                      horizontal: 10,
-                      vertical: 6,
+                      horizontal: 12,
+                      vertical: 8,
                     ),
                     decoration: BoxDecoration(
-                      color: color.withOpacity(0.15),
+                      color: statusColor.withOpacity(0.15),
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Text(
-                      status.toUpperCase(),
+                      status.toString().toUpperCase(),
                       style: TextStyle(
-                        color: color,
+                        color: statusColor,
                         fontWeight: FontWeight.bold,
                         fontSize: 12,
                       ),
