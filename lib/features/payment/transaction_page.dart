@@ -117,6 +117,21 @@ class TransactionPage extends StatelessWidget {
                         ],
                       ),
                     ),
+
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        Text(
+                          "Rp ${amount.toString()}",
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: Color(0xFFFF8C42),
+                          ),
+                        ),
+
+                        const SizedBox(height: 4),
+                      ],
+                    ),
                   ],
                 ),
               );
