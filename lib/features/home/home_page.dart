@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:provider/provider.dart';
-
+import '../payment/transaction_page.dart';
 import '../../services/notification_services.dart';
 import '../../models/product_models.dart';
 import '../providers/cart_provider.dart';
@@ -25,19 +25,6 @@ class _HomePageState extends State<HomePage> {
     super.initState();
 
     NotificationService.init();
-
-    // DEBUG FIREBASE
-    print("PROJECT ID: ${FirebaseFirestore.instance.app.options.projectId}");
-
-    FirebaseFirestore.instance
-        .collection('products')
-        .get()
-        .then((v) {
-          print("PRODUCT COUNT: ${v.docs.length}");
-        })
-        .catchError((e) {
-          print("ERROR GETTING PRODUCTS: $e");
-        });
   }
 
   @override
@@ -105,7 +92,12 @@ class _HomePageState extends State<HomePage> {
                       ),
                       IconButton(
                         onPressed: () {
-                          Navigator.pushNamed(context, '/transactions');
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const TransactionPage(),
+                            ),
+                          );
                         },
                         icon: const Icon(
                           Icons.receipt_long,
