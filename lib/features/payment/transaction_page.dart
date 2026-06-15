@@ -74,6 +74,29 @@ class TransactionPage extends StatelessWidget {
                     ),
                   ],
                 ),
+                child: Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(10),
+                      decoration: BoxDecoration(
+                        color: status == 'success'
+                            ? Colors.green.withOpacity(0.1)
+                            : Colors.orange.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Icon(
+                        status == 'success'
+                            ? Icons.check_circle
+                            : Icons.hourglass_bottom,
+                        color: status == 'success'
+                            ? Colors.green
+                            : Colors.orange,
+                      ),
+                    ),
+
+                    const SizedBox(width: 12),
+                  ],
+                ),
               );
             },
           );
