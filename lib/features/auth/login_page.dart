@@ -29,8 +29,6 @@ class _LoginPageState extends State<LoginPage> {
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
 
-  final FirebaseAuth _auth = FirebaseAuth.instance;
-
   bool isLoading = false;
 
   Future<void> loginEmail() async {
@@ -60,8 +58,6 @@ class _LoginPageState extends State<LoginPage> {
         if (firebaseToken != null) {
           final jwt = await AuthService.sendTokenToBackend(firebaseToken);
           await AuthService.saveJWT(jwt);
-
-          print("JWT: $jwt");
         }
 
         Navigator.pushReplacementNamed(context, '/home');
