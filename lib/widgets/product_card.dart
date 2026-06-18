@@ -27,42 +27,42 @@ class ProductCard extends StatelessWidget {
     return Material(
       color: Colors.transparent,
       child: InkWell(
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(18),
         onTap: onTap,
         child: Container(
           decoration: BoxDecoration(
             color: Colors.white,
-            borderRadius: BorderRadius.circular(20),
+            borderRadius: BorderRadius.circular(18),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.06),
-                blurRadius: 12,
-                offset: const Offset(0, 5),
+                color: Colors.black.withOpacity(0.05),
+                blurRadius: 10,
+                offset: const Offset(0, 4),
               ),
             ],
           ),
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              /// IMAGE
-              Expanded(
-                flex: 6,
+              // IMAGE
+              SizedBox(
+                height: 120,
+                width: double.infinity,
                 child: Stack(
                   children: [
                     ClipRRect(
                       borderRadius: const BorderRadius.vertical(
-                        top: Radius.circular(20),
+                        top: Radius.circular(18),
                       ),
                       child: Image.network(
                         image,
                         width: double.infinity,
+                        height: 120,
                         fit: BoxFit.cover,
                         errorBuilder: (_, __, ___) {
                           return Container(
                             color: Colors.grey.shade200,
-                            child: const Icon(
-                              Icons.image_not_supported,
-                              size: 50,
+                            child: const Center(
+                              child: Icon(Icons.image_not_supported, size: 40),
                             ),
                           );
                         },
@@ -70,18 +70,18 @@ class ProductCard extends StatelessWidget {
                     ),
 
                     Positioned(
-                      top: 10,
-                      right: 10,
+                      top: 8,
+                      right: 8,
                       child: Container(
-                        padding: const EdgeInsets.all(8),
+                        padding: const EdgeInsets.all(6),
                         decoration: BoxDecoration(
                           color: Colors.white,
-                          borderRadius: BorderRadius.circular(12),
+                          borderRadius: BorderRadius.circular(10),
                         ),
                         child: const Icon(
                           Icons.add_shopping_cart,
                           color: Color(0xFFFF8C42),
-                          size: 18,
+                          size: 16,
                         ),
                       ),
                     ),
@@ -89,18 +89,19 @@ class ProductCard extends StatelessWidget {
                 ),
               ),
 
-              /// CONTENT
               Expanded(
-                flex: 5,
                 child: Padding(
-                  padding: const EdgeInsets.all(10),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 8,
+                  ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Container(
                         padding: const EdgeInsets.symmetric(
                           horizontal: 8,
-                          vertical: 4,
+                          vertical: 3,
                         ),
                         decoration: BoxDecoration(
                           color: const Color(0xFFFF8C42).withOpacity(0.12),
@@ -108,15 +109,17 @@ class ProductCard extends StatelessWidget {
                         ),
                         child: Text(
                           category,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                           style: const TextStyle(
                             color: Color(0xFFFF8C42),
-                            fontSize: 10,
                             fontWeight: FontWeight.w600,
+                            fontSize: 10,
                           ),
                         ),
                       ),
 
-                      const SizedBox(height: 8),
+                      const SizedBox(height: 6),
 
                       Text(
                         name,
@@ -124,7 +127,8 @@ class ProductCard extends StatelessWidget {
                         overflow: TextOverflow.ellipsis,
                         style: const TextStyle(
                           fontWeight: FontWeight.w600,
-                          fontSize: 14,
+                          fontSize: 13,
+                          height: 1.2,
                         ),
                       ),
 
@@ -135,26 +139,27 @@ class ProductCard extends StatelessWidget {
                         style: const TextStyle(
                           color: Color(0xFFFF8C42),
                           fontWeight: FontWeight.bold,
-                          fontSize: 16,
+                          fontSize: 15,
                         ),
                       ),
 
-                      const SizedBox(height: 6),
+                      const SizedBox(height: 4),
 
                       Row(
                         children: [
                           const Icon(
-                            Icons.star,
+                            Icons.star_rounded,
                             color: Colors.orange,
-                            size: 15,
+                            size: 14,
                           ),
-                          const SizedBox(width: 4),
+
+                          const SizedBox(width: 3),
 
                           Text(
                             rating.toStringAsFixed(1),
                             style: TextStyle(
                               color: Colors.grey.shade700,
-                              fontSize: 12,
+                              fontSize: 11,
                             ),
                           ),
 
@@ -164,7 +169,7 @@ class ProductCard extends StatelessWidget {
                             "Stok $stock",
                             style: TextStyle(
                               color: Colors.grey.shade600,
-                              fontSize: 11,
+                              fontSize: 10,
                             ),
                           ),
                         ],
