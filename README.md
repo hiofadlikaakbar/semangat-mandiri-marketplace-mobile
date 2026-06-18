@@ -1,3 +1,6 @@
+## Nama
+Hio Fadlika Akbar || 1123150077
+
 # Semangat Mandiri Marketplace
 
 Semangat Mandiri Marketplace adalah aplikasi marketplace sederhana berbasis Flutter yang digunakan untuk jual beli produk sembako. Aplikasi ini memungkinkan pengguna untuk membuat akun, login, mencari produk, menambahkan ke keranjang, melakukan checkout, serta melihat riwayat transaksi.
