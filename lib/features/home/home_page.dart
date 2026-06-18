@@ -18,7 +18,6 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   final TextEditingController searchController = TextEditingController();
-
   final ValueNotifier<String> searchQuery = ValueNotifier("");
 
   @override
@@ -49,19 +48,15 @@ class _HomePageState extends State<HomePage> {
         child: StreamBuilder<QuerySnapshot>(
           stream: FirebaseFirestore.instance.collection('products').snapshots(),
           builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
+            if (!snapshot.hasData) {
               return const Center(child: CircularProgressIndicator());
-            }
-
-            if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-              return const Center(child: Text("Belum ada produk"));
             }
 
             final allProducts = snapshot.data!.docs;
 
             return CustomScrollView(
               slivers: [
-                //  header
+                // ================= HEADER =================
                 SliverToBoxAdapter(
                   child: Container(
                     decoration: const BoxDecoration(
@@ -76,6 +71,7 @@ class _HomePageState extends State<HomePage> {
                     padding: const EdgeInsets.fromLTRB(18, 16, 18, 24),
                     child: Column(
                       children: [
+                        // TOP BAR (CART DI SINI BALIK 😹)
                         Row(
                           children: [
                             const Icon(Icons.storefront, color: Colors.white),
@@ -103,6 +99,7 @@ class _HomePageState extends State<HomePage> {
                               ),
                             ),
 
+                            // TRANSACTION
                             IconButton(
                               onPressed: () {
                                 Navigator.push(
@@ -118,6 +115,45 @@ class _HomePageState extends State<HomePage> {
                               ),
                             ),
 
+                            // CART (BALIK NORMAL + BADGE)
+                            Consumer<CartProvider>(
+                              builder: (context, cart, _) {
+                                return Stack(
+                                  children: [
+                                    IconButton(
+                                      onPressed: () {
+                                        Navigator.pushNamed(context, '/cart');
+                                      },
+                                      icon: const Icon(
+                                        Icons.shopping_cart_outlined,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                    if (cart.items.isNotEmpty)
+                                      Positioned(
+                                        right: 5,
+                                        top: 5,
+                                        child: Container(
+                                          padding: const EdgeInsets.all(4),
+                                          decoration: const BoxDecoration(
+                                            color: Colors.red,
+                                            shape: BoxShape.circle,
+                                          ),
+                                          child: Text(
+                                            cart.items.length.toString(),
+                                            style: const TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 10,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                  ],
+                                );
+                              },
+                            ),
+
+                            // LOGOUT
                             IconButton(
                               onPressed: logout,
                               icon: const Icon(
@@ -130,7 +166,7 @@ class _HomePageState extends State<HomePage> {
 
                         const SizedBox(height: 16),
 
-                        //  search
+                        // SEARCH (RAPI + CENTER)
                         Container(
                           height: 48,
                           decoration: BoxDecoration(
@@ -159,90 +195,7 @@ class _HomePageState extends State<HomePage> {
                   ),
                 ),
 
-                // banner
-                SliverToBoxAdapter(
-                  child: Container(
-                    margin: const EdgeInsets.all(16),
-                    height: 120,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(20),
-                      gradient: const LinearGradient(
-                        colors: [Color(0xFFFFB347), Color(0xFFFF8C42)],
-                      ),
-                    ),
-                    child: const Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(
-                            "Diskon Hingga 50%",
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          Text(
-                            "Belanja lebih hemat",
-                            style: TextStyle(color: Colors.white70),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-
-                // category
-                SliverToBoxAdapter(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text(
-                          "Kategori",
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        const SizedBox(height: 10),
-
-                        SizedBox(
-                          height: 40,
-                          child: ListView(
-                            scrollDirection: Axis.horizontal,
-                            children: const [
-                              CategoryChip("Beras"),
-                              CategoryChip("Minyak"),
-                              CategoryChip("Telur"),
-                              CategoryChip("Gula"),
-                              CategoryChip("Kopi"),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-
-                const SliverToBoxAdapter(child: SizedBox(height: 10)),
-
-                const SliverToBoxAdapter(
-                  child: Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 16),
-                    child: Text(
-                      "Produk Terbaru",
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                ),
-
-                const SliverToBoxAdapter(child: SizedBox(height: 12)),
-
+                // ================= GRID =================
                 ValueListenableBuilder<String>(
                   valueListenable: searchQuery,
                   builder: (context, query, _) {
@@ -270,27 +223,7 @@ class _HomePageState extends State<HomePage> {
                             category: product.category,
                             stock: product.stock,
                             rating: product.rating,
-                            onTap: () async {
-                              if (product.stock <= 0) return;
-
-                              await FirebaseFirestore.instance
-                                  .collection('products')
-                                  .doc(product.id)
-                                  .update({'stock': product.stock - 1});
-
-                              Provider.of<CartProvider>(
-                                context,
-                                listen: false,
-                              ).addToCart(product);
-
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text(
-                                    "${product.name} ditambahkan ke cart",
-                                  ),
-                                ),
-                              );
-                            },
+                            onTap: () {},
                           );
                         }, childCount: filtered.length),
                         gridDelegate:
@@ -307,33 +240,6 @@ class _HomePageState extends State<HomePage> {
               ],
             );
           },
-        ),
-      ),
-    );
-  }
-}
-
-class CategoryChip extends StatelessWidget {
-  final String title;
-
-  const CategoryChip(this.title, {super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.only(right: 10),
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      decoration: BoxDecoration(
-        color: const Color(0xFFFF8C42).withOpacity(0.12),
-        borderRadius: BorderRadius.circular(24),
-      ),
-      child: Center(
-        child: Text(
-          title,
-          style: const TextStyle(
-            color: Color(0xFFFF8C42),
-            fontWeight: FontWeight.w600,
-          ),
         ),
       ),
     );
