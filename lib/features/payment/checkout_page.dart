@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-
+import '../auth/otp_authenticator.dart';
 import '../providers/cart_provider.dart';
 
 class CheckoutPage extends StatefulWidget {
@@ -278,13 +278,20 @@ class _CheckoutPageState extends State<CheckoutPage> {
           child: SizedBox(
             height: 55,
             child: ElevatedButton(
-              onPressed: isLoading ? null : _showPinDialog,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFFFF8C42),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16),
-                ),
-              ),
+              onPressed: isLoading
+                  ? null
+                  : () async {
+                      final result = await Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const AuthVerificationScreen(),
+                        ),
+                      );
+
+                      if (result == true) {
+                        _showPinDialog();
+                      }
+                    },
               child: isLoading
                   ? const CircularProgressIndicator(color: Colors.white)
                   : const Text(

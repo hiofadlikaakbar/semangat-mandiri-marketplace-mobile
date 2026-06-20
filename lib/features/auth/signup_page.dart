@@ -17,6 +17,7 @@ class _SignupPageState extends State<SignupPage> {
 
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  bool isLoading = false;
 
   Future<void> signup() async {
     try {
@@ -27,38 +28,65 @@ class _SignupPageState extends State<SignupPage> {
         return;
       }
 
+      setState(() => isLoading = true);
+
       UserCredential userCredential = await _auth
           .createUserWithEmailAndPassword(
             email: emailController.text.trim(),
             password: passwordController.text.trim(),
           );
 
-      await _firestore.collection("users").doc(userCredential.user!.uid).set({
+      final user = userCredential.user;
+
+      if (user == null) {
+        throw Exception("User gagal dibuat");
+      }
+
+      await _firestore.collection("users").doc(user.uid).set({
         "username": usernameController.text.trim(),
         "email": emailController.text.trim(),
-        "uid": userCredential.user!.uid,
+        "uid": user.uid,
         "createdAt": Timestamp.now(),
+        "isVerified": false,
       });
 
-      await userCredential.user!.sendEmailVerification();
-
-      await _auth.signOut();
+      await _firestore.collection("wallet_users").doc(user.uid).set({
+        "uid": user.uid,
+        "email": user.email,
+        "balance": 0,
+        "pin": "123456",
+        "createdAt": Timestamp.now(),
+      });
+      await user.sendEmailVerification();
 
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text("Akun berhasil dibuat! Cek email untuk verifikasi."),
+          content: Text(
+            "Akun berhasil dibuat. Silakan cek email untuk verifikasi.",
+          ),
         ),
       );
 
+      await _auth.signOut();
+
+      if (!mounted) return;
+
       Navigator.pushReplacementNamed(context, '/login');
+    } on FirebaseAuthException catch (e) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(e.message ?? "Signup gagal")));
     } catch (e) {
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(SnackBar(content: Text("Error: $e")));
+    } finally {
+      if (mounted) {
+        setState(() => isLoading = false);
+      }
     }
   }
 
-  @override
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -117,7 +145,6 @@ class _SignupPageState extends State<SignupPage> {
 
                   const SizedBox(height: 35),
 
-                  // USERNAME
                   TextField(
                     controller: usernameController,
                     decoration: InputDecoration(
