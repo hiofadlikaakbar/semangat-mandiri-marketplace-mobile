@@ -4,6 +4,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../auth/otp_authenticator.dart';
 import '../providers/cart_provider.dart';
+import '../../services/deeplink_service.dart';
+import 'package:uuid/uuid.dart';
 
 class CheckoutPage extends StatefulWidget {
   const CheckoutPage({super.key});
@@ -15,140 +17,6 @@ class CheckoutPage extends StatefulWidget {
 class _CheckoutPageState extends State<CheckoutPage> {
   final TextEditingController pinController = TextEditingController();
   bool isLoading = false;
-
-  void _showPinDialog() {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-      ),
-      builder: (context) {
-        return Padding(
-          padding: EdgeInsets.only(
-            left: 20,
-            right: 20,
-            top: 20,
-            bottom: MediaQuery.of(context).viewInsets.bottom + 20,
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Text(
-                "Konfirmasi Pembayaran",
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
-
-              const SizedBox(height: 20),
-
-              TextField(
-                controller: pinController,
-                obscureText: true,
-                keyboardType: TextInputType.number,
-                decoration: InputDecoration(
-                  hintText: "Masukkan PIN",
-                  prefixIcon: const Icon(
-                    Icons.lock_outline,
-                    color: Color(0xFFFF8C42),
-                  ),
-                  filled: true,
-                  fillColor: const Color(0xFFF5F5F5),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(16),
-                    borderSide: BorderSide.none,
-                  ),
-                ),
-              ),
-
-              const SizedBox(height: 20),
-
-              SizedBox(
-                width: double.infinity,
-                height: 50,
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFFFF8C42),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(14),
-                    ),
-                  ),
-                  onPressed: () async {
-                    Navigator.pop(context);
-                    await _processPayment();
-                  },
-                  child: const Text(
-                    "Konfirmasi Bayar",
-                    style: TextStyle(color: Colors.white),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        );
-      },
-    );
-  }
-
-  Future<void> _processPayment() async {
-    final cart = Provider.of<CartProvider>(context, listen: false);
-    final user = FirebaseAuth.instance.currentUser;
-
-    if (user == null) return;
-
-    print("CHECKOUT UID = ${user.uid}");
-
-    setState(() => isLoading = true);
-
-    try {
-      final walletRef = FirebaseFirestore.instance
-          .collection('wallet_users')
-          .doc(user.uid);
-
-      final walletSnap = await walletRef.get();
-
-      if (!walletSnap.exists) {
-        throw "Wallet tidak ditemukan";
-      }
-
-      final data = walletSnap.data() as Map<String, dynamic>;
-      final savedPin = data['pin'];
-      final balance = data['balance'] ?? 0;
-      final total = cart.totalPrice.toInt();
-
-      if (pinController.text != savedPin) {
-        throw "PIN salah";
-      }
-
-      if (balance < total) {
-        throw "Saldo tidak cukup";
-      }
-
-      await walletRef.update({'balance': balance - total});
-
-      await FirebaseFirestore.instance.collection('transactions').add({
-        'userId': user.uid,
-        'amount': total,
-        'status': 'success',
-        'createdAt': Timestamp.now(),
-      });
-
-      cart.clearCart();
-
-      if (!mounted) return;
-
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text("Pembayaran berhasil")));
-
-      Navigator.popUntil(context, (route) => route.isFirst);
-    } catch (e) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(e.toString())));
-    }
-
-    setState(() => isLoading = false);
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -289,7 +157,25 @@ class _CheckoutPageState extends State<CheckoutPage> {
                       );
 
                       if (result == true) {
-                        _showPinDialog();
+                        final orderId = const Uuid().v4();
+
+                        await FirebaseFirestore.instance
+                            .collection("transactions")
+                            .doc(orderId)
+                            .set({
+                              "transactionId": orderId,
+                              "userId": FirebaseAuth.instance.currentUser!.uid,
+                              "merchantName": "Semangat Mandiri Marketplace",
+                              "amount": cart.totalPrice.toInt(),
+                              "status": "pending",
+                              "createdAt": FieldValue.serverTimestamp(),
+                            });
+
+                        await DeepLinkService.openWallet(
+                          orderId: orderId,
+                          amount: cart.totalPrice.toInt(),
+                          merchant: "Semangat Mandiri Marketplace",
+                        );
                       }
                     },
               child: isLoading
