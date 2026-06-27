@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:qr_flutter/qr_flutter.dart';
+import '../auth/otp_verification_page.dart';
 
 class ProfilePage extends StatelessWidget {
   const ProfilePage({super.key});
@@ -99,23 +100,22 @@ class ProfilePage extends StatelessWidget {
                 onPressed: enabled
                     ? null
                     : () async {
-                        await FirebaseFirestore.instance
-                            .collection("users")
-                            .doc(uid)
-                            .update({"authenticatorEnabled": true});
+                        final result = await Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => const OtpVerificationPage(),
+                          ),
+                        );
 
-                        if (context.mounted) {
+                        if (result == true && context.mounted) {
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(
-                              content: Text(
-                                "Google Authenticator berhasil diaktifkan",
-                              ),
+                              content: Text("Authenticator aktif."),
                             ),
                           );
                         }
                       },
-
-                child: const Text("Saya Sudah Menghubungkan"),
+                child: const Text("Verifikasi Authenticator"),
               ),
             ],
           );

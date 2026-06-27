@@ -7,6 +7,7 @@ import '../../services/notification_services.dart';
 import '../../features/payment/transaction_page.dart';
 import '../providers/cart_provider.dart';
 import '../../widgets/product_card.dart';
+import '../profile/profile_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -128,7 +129,20 @@ class _HomePageState extends State<HomePage> {
                                       color: Colors.white,
                                     ),
                                   ),
-
+                                  IconButton(
+                                    icon: const Icon(
+                                      Icons.person,
+                                      color: Colors.white,
+                                    ),
+                                    onPressed: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (_) => const ProfilePage(),
+                                        ),
+                                      );
+                                    },
+                                  ),
                                   // CART
                                   Consumer<CartProvider>(
                                     builder: (context, cart, _) {
