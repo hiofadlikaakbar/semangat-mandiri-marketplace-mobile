@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import '../../services/totp_service.dart';
 
 class SignupPage extends StatefulWidget {
   const SignupPage({super.key});
@@ -37,15 +38,20 @@ class _SignupPageState extends State<SignupPage> {
           );
 
       final user = userCredential.user;
+      final secret = TotpService.generateSecret();
 
       if (user == null) {
         throw Exception("User gagal dibuat");
       }
 
       await _firestore.collection("users").doc(user.uid).set({
+        "uid": user.uid,
         "username": usernameController.text.trim(),
         "email": emailController.text.trim(),
-        "uid": user.uid,
+
+        "totpSecret": secret,
+        "authenticatorEnabled": false,
+
         "createdAt": Timestamp.now(),
         "isVerified": false,
       });
@@ -54,7 +60,9 @@ class _SignupPageState extends State<SignupPage> {
         "uid": user.uid,
         "email": user.email,
         "balance": 0,
-        "pin": "123456",
+
+        "pin": null,
+
         "createdAt": Timestamp.now(),
       });
       await user.sendEmailVerification();
