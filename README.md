@@ -105,3 +105,10 @@ Pengguna dapat melakukan registrasi, login, mencari produk, melihat daftar produ
 
 ---
 
+
+
+## Video Demo
+
+Video demonstrasi aplikasi dapat ditonton melalui YouTube:
+
+[Semangat Mandiri Marketplace - Demo Aplikasi](https://www.youtube.com/watch?v=jhByjaxZ4P4)
