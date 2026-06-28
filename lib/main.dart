@@ -80,11 +80,24 @@ class _MyAppState extends State<MyApp> {
 
     final status = uri.queryParameters["status"];
 
-    if (status == "success") {
-      ScaffoldMessenger.of(
-        navigatorKey.currentContext!,
-      ).showSnackBar(const SnackBar(content: Text("Pembayaran berhasil")));
-    }
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (status == "success") {
+        navigatorKey.currentState?.pushNamedAndRemoveUntil(
+          "/home",
+          (route) => false,
+        );
+
+        Future.delayed(const Duration(milliseconds: 400), () {
+          final context = navigatorKey.currentContext;
+
+          if (context != null) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text("Pembayaran berhasil")),
+            );
+          }
+        });
+      }
+    });
   }
 
   @override
