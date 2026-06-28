@@ -14,19 +14,16 @@ import 'features/home/home_page.dart';
 import 'features/providers/cart_provider.dart';
 import 'features/splash/splash_screen.dart';
 
-final navigatorKey = GlobalKey<NavigatorState>();
-
 Future<void> firebaseBackgroundHandler(RemoteMessage message) async {
   debugPrint("Background notif: ${message.notification?.title}");
 }
 
-Future<void> main() async {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
   FirebaseMessaging.onBackgroundMessage(firebaseBackgroundHandler);
-
   await FirebaseMessaging.instance.requestPermission();
 
   runApp(const AppProvider());
@@ -52,24 +49,24 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
+  final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
   late final AppLinks appLinks;
   StreamSubscription<Uri>? sub;
+
+  // bool _isHandlingDeepLink = false;
+  // String? _lastStatus;
 
   @override
   void initState() {
     super.initState();
 
     appLinks = AppLinks();
-
     _initDeepLink();
   }
 
   Future<void> _initDeepLink() async {
     final initial = await appLinks.getInitialLink();
-
-    if (initial != null) {
-      _handleUri(initial);
-    }
+    if (initial != null) _handleUri(initial);
 
     sub = appLinks.uriLinkStream.listen(_handleUri);
   }
@@ -80,23 +77,10 @@ class _MyAppState extends State<MyApp> {
 
     final status = uri.queryParameters["status"];
 
+    if (status != "success") return;
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (status == "success") {
-        navigatorKey.currentState?.pushNamedAndRemoveUntil(
-          "/home",
-          (route) => false,
-        );
-
-        Future.delayed(const Duration(milliseconds: 400), () {
-          final context = navigatorKey.currentContext;
-
-          if (context != null) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text("Pembayaran berhasil")),
-            );
-          }
-        });
-      }
+      navigatorKey.currentState?.popUntil((route) => route.isFirst);
     });
   }
 
@@ -111,7 +95,7 @@ class _MyAppState extends State<MyApp> {
     return MaterialApp(
       navigatorKey: navigatorKey,
       debugShowCheckedModeBanner: false,
-      title: 'Hio Marketplace UAS',
+      title: 'Semangat Mandiri Marketplace',
       initialRoute: '/splash',
       routes: {
         '/splash': (_) => const SplashScreen(),

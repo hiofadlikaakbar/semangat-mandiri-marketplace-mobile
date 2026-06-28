@@ -183,7 +183,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
                   : const Text(
                       "Bayar Sekarang",
                       style: TextStyle(
-                        color: Colors.white,
+                        color: Colors.orange,
                         fontWeight: FontWeight.bold,
                       ),
                     ),

@@ -30,6 +30,7 @@ class ProductCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(18),
         onTap: onTap,
         child: Container(
+          constraints: const BoxConstraints(minHeight: 240),
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(18),
@@ -42,6 +43,7 @@ class ProductCard extends StatelessWidget {
             ],
           ),
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // IMAGE
               SizedBox(
@@ -68,7 +70,6 @@ class ProductCard extends StatelessWidget {
                         },
                       ),
                     ),
-
                     Positioned(
                       top: 8,
                       right: 8,
@@ -98,30 +99,31 @@ class ProductCard extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 8,
-                          vertical: 3,
-                        ),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFFF8C42).withOpacity(0.12),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Text(
-                          category,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(
-                            color: Color(0xFFFF8C42),
-                            fontWeight: FontWeight.w600,
-                            fontSize: 10,
-                          ),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 3,
+                      ),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFFF8C42).withOpacity(0.12),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Text(
+                        category,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          color: Color(0xFFFF8C42),
+                          fontWeight: FontWeight.w600,
+                          fontSize: 10,
                         ),
                       ),
+                    ),
 
-                      const SizedBox(height: 6),
+                    const SizedBox(height: 6),
 
-                      Text(
+                    Expanded(
+                      child: Text(
                         name,
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
@@ -131,49 +133,46 @@ class ProductCard extends StatelessWidget {
                           height: 1.2,
                         ),
                       ),
+                    ),
 
-                      const Spacer(),
+                    const SizedBox(height: 8),
 
-                      Text(
-                        price,
-                        style: const TextStyle(
-                          color: Color(0xFFFF8C42),
-                          fontWeight: FontWeight.bold,
-                          fontSize: 15,
+                    Text(
+                      price,
+                      style: const TextStyle(
+                        color: Color(0xFFFF8C42),
+                        fontWeight: FontWeight.bold,
+                        fontSize: 15,
+                      ),
+                    ),
+
+                    const SizedBox(height: 6),
+
+                    Row(
+                      children: [
+                        const Icon(
+                          Icons.star_rounded,
+                          color: Colors.orange,
+                          size: 14,
                         ),
-                      ),
-
-                      const SizedBox(height: 4),
-
-                      Row(
-                        children: [
-                          const Icon(
-                            Icons.star_rounded,
-                            color: Colors.orange,
-                            size: 14,
+                        const SizedBox(width: 3),
+                        Text(
+                          rating.toStringAsFixed(1),
+                          style: TextStyle(
+                            color: Colors.grey.shade700,
+                            fontSize: 11,
                           ),
-
-                          const SizedBox(width: 3),
-
-                          Text(
-                            rating.toStringAsFixed(1),
-                            style: TextStyle(
-                              color: Colors.grey.shade700,
-                              fontSize: 11,
-                            ),
+                        ),
+                        const Spacer(),
+                        Text(
+                          "Stok $stock",
+                          style: TextStyle(
+                            color: Colors.grey.shade600,
+                            fontSize: 10,
                           ),
-
-                          const Spacer(),
-
-                          Text(
-                            "Stok $stock",
-                            style: TextStyle(
-                              color: Colors.grey.shade600,
-                              fontSize: 10,
-                            ),
-                          ),
-                        ],
-                      ),
+                        ),
+                      ],
+                    ),
                     ],
                   ),
                 ),
